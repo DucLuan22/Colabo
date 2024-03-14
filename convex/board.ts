@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 const images = [
   "/placeholders/1.svg",
@@ -23,7 +23,7 @@ export const create = mutation({
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
-      throw new Error();
+      throw new Error("Unauthorized");
     }
 
     const randomImage = images[Math.floor(Math.random() * images.length)];
@@ -35,6 +35,8 @@ export const create = mutation({
       authorName: identity.name!,
       imageUrl: randomImage,
     });
+
+    return board;
   },
 });
 
@@ -48,8 +50,17 @@ export const remove = mutation({
     if (!identity) {
       throw new Error("Unauthorized");
     }
+    const userId = identity.subject;
+    const existingFavorite = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_user_board", (q) =>
+        q.eq("userId", userId).eq("boardId", args.id)
+      )
+      .unique();
 
-    //TODO: Later check to delete favorite relation
+    if (existingFavorite) {
+      await ctx.db.delete(existingFavorite._id);
+    }
     await ctx.db.delete(args.id);
   },
 });
@@ -147,6 +158,15 @@ export const unfavorite = mutation({
     }
 
     await ctx.db.delete(existingFavorite._id);
+
+    return board;
+  },
+});
+
+export const get = query({
+  args: { id: v.id("boards") },
+  handler: async (ctx, args) => {
+    const board = ctx.db.get(args.id);
 
     return board;
   },
