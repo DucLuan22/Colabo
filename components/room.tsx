@@ -4,6 +4,7 @@ import { ClientSideSuspense } from "@liveblocks/react";
 import { ReactNode } from "react";
 
 import { RoomProvider } from "@/liveblocks.config";
+import { Loading } from "@/app/board/[boardId]/_component/loading";
 
 interface RoomProps {
   children: ReactNode;
@@ -13,7 +14,7 @@ interface RoomProps {
 export const Room = ({ children, roomId, fallback }: RoomProps) => {
   return (
     <RoomProvider id={roomId} initialPresence={{}}>
-      <ClientSideSuspense fallback={<div>Loading...</div>}>
+      <ClientSideSuspense fallback={<Loading />}>
         {() => children}
       </ClientSideSuspense>
     </RoomProvider>

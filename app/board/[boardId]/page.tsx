@@ -8,7 +8,6 @@ interface BoardIdProps {
   };
 }
 const BoardIdPage = ({ params }: BoardIdProps) => {
-  return <Loading />;
   return (
     <Room roomId={params.boardId} fallback={<Loading />}>
       <Canvas boardId={params.boardId} />
