@@ -4,7 +4,8 @@ import { ClientSideSuspense } from "@liveblocks/react";
 import { ReactNode } from "react";
 
 import { RoomProvider } from "@/liveblocks.config";
-import { Loading } from "@/app/board/[boardId]/_component/loading";
+import { LiveList, LiveMap, LiveObject } from "@liveblocks/client";
+import { Layer } from "@/types/canvas";
 
 interface RoomProps {
   children: ReactNode;
@@ -13,8 +14,17 @@ interface RoomProps {
 }
 export const Room = ({ children, roomId, fallback }: RoomProps) => {
   return (
-    <RoomProvider id={roomId} initialPresence={{}}>
-      <ClientSideSuspense fallback={<Loading />}>
+    <RoomProvider
+      id={roomId}
+      initialPresence={{
+        cursor: null,
+      }}
+      initialStorage={{
+        layers: new LiveMap<string, LiveObject<Layer>>(),
+        layerIds: new LiveList(),
+      }}
+    >
+      <ClientSideSuspense fallback={fallback}>
         {() => children}
       </ClientSideSuspense>
     </RoomProvider>
